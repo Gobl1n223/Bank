@@ -1,0 +1,36 @@
+/*C3*/SET SCHEMA PUBLIC
+set schema PUBLIC
+create table credit\u000a(\u000a\u0009id UUID not null\u000a\u0009\u0009constraint CREDIT_PK\u000a\u0009\u0009\u0009primary key,\u000a\u0009"creditLimit" numeric not null,\u000a\u0009"percentRate" numeric not null,\u000a\u0009"bankId" UUID not null,\u000a    FOREIGN KEY ("bankId") REFERENCES BANK\u000a)
+/*C4*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/create table CLIENT (\u000a                        ID UUID primary key not null,\u000a                        name varchar(30) not null,\u000a                        PASSPORTID varchar(10) unique not null,\u000a                        phone varchar(15) not null unique,\u000a                        Bank UUID,\u000a                        FOREIGN KEY (Bank) REFERENCES BANK\u000a\u000a)
+/*C5*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C6*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C7*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/alter table CREDIT alter column "creditLimit" rename to CREDITLIMIT
+/*C8*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/alter table CREDIT alter column "percentRate" rename to PERCENTRATE
+/*C9*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/alter table CREDIT alter column "bankId" rename to BANK
+/*C10*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/create table CREDIT_OFFER\u000a(\u000a\u0009column_1 int\u000a)
+/*C11*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/drop table CREDIT_OFFER
+/*C12*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/create table CREDIT_OFFER (\u000a                              ID UUID primary key not null,\u000a                              AMOUNT_OF_PAYMENT NUMERIC,\u000a                              CLIENT UUID not null,\u000a                              CREDIT UUID not null,\u000a                              FOREIGN KEY (CLIENT) REFERENCES CLIENT,\u000a                              FOREIGN KEY (CREDIT) REFERENCES CREDIT\u000a)
+/*C13*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/create table PAYMENT_SCHEDULE (\u000a                                  ID UUID primary key not null,\u000a                                  AMOUNT_OF_INTEREST_REPAYMENT NUMERIC,\u000a                                  AMOUNT_OF_PAYMENT NUMERIC,\u000a                                  AMOUNT_OF_REPAYMENT_OF_THE_LOAN_BODY NUMERIC,\u000a                                  PAYMENT_DATE DATE,\u000a                                  CREDIT_OFFER UUID not null ,\u000a                                  FOREIGN KEY (CREDIT_OFFER) REFERENCES CREDIT_OFFER\u000a)
+/*C14*/SET SCHEMA PUBLIC
+DISCONNECT
+/*C3*/alter table CLIENT alter column NAME set data type VARCHAR(45)
+/*C15*/SET SCHEMA PUBLIC
+DISCONNECT
