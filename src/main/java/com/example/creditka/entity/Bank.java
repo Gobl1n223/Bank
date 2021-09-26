@@ -8,10 +8,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+/**
+ * Сущность банка
+ * Имеет 2 листа которые подключаються к Client and Credit
+ */
+@Data
 @Entity
 @Table(name = "BANK")
 @NoArgsConstructor
@@ -26,12 +27,10 @@ public class Bank{
     private String nameBank;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "bank",orphanRemoval = true)
-    @ToString.Exclude
     private Set<Client> clients;
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "bank", orphanRemoval = true)
-    @ToString.Exclude
     private Set<Credit> credits;
 
     public Bank(String nameBank) {

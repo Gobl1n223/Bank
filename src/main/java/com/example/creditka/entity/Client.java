@@ -1,15 +1,17 @@
 package com.example.creditka.entity;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.Set;
 import java.util.UUID;
+
+/**
+ *Сущность клиента
+ * Имеет внешний ключь Bank и лист ClientOffer
+ */
 
 @Data
 @Entity
