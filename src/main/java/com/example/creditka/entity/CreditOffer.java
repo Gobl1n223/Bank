@@ -1,51 +1,84 @@
 package com.example.creditka.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
-import java.util.Set;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Сущность кредитного предложения
- * Имеет 2 внешних ключа Credit and Client и лист PaymentSchedule
+ * Сущность Оформления Кредита
  */
-
 @Data
-@Entity
 @NoArgsConstructor
-@Table(name = "CREDIT_OFFER")
-public class CreditOffer  {
+@AllArgsConstructor
+@Entity
+@Table(name="credit_offer")
+public class CreditOffer implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "uuid")
-    private UUID ID;
+    @GeneratedValue
+    @Column(name = "credit_offer_uuid")
+    private UUID uuid;
 
-    @ManyToOne(fetch =  FetchType.EAGER)
-    @JoinColumn(name="CREDIT",nullable = false)
-    private Credit credit;
-
-    @ManyToOne(fetch =  FetchType.EAGER)
-    @JoinColumn(name="CLIENT",nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_uuid")
     private Client client;
 
-    @Column(name = "AMOUNT_OF_PAYMENT")
-    private BigDecimal amountOfPayment;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "credit_uuid")
+    private Credit credit;
 
-    @OneToMany(mappedBy = "creditOffer", fetch = FetchType.EAGER)
-    private Set<PaymentSchedule> paymentSchedule;
+    @Column(name = "amount")
+    @Min(value = 0)
+    @Max(value = Long.MAX_VALUE)
+    private long amount;
 
+    @Column(name = "interest_total")
+    @Min(value = 0)
+    @Max(value = Long.MAX_VALUE)
+    private long interestTotal;
 
-    public CreditOffer(Credit credit, Client client, BigDecimal amountOfPayment) {
-        this.credit = credit;
+    @Column(name = "credit_term")
+    @Min(value = 1)
+    @Max(value = 240)
+    private int creditTerm;
+
+    @Column(name = "first_payment_date")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate date;
+
+    @OneToMany(mappedBy = "creditOffer", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Payment> paymentList;
+
+    public CreditOffer(UUID uuid, Client client, Credit credit, long amount, int creditTerm, LocalDate date) {
+        this.uuid = uuid;
         this.client = client;
-        this.amountOfPayment = amountOfPayment;
+        this.credit = credit;
+        this.amount = amount;
+        this.creditTerm = creditTerm;
+        this.date = date;
+        this.paymentList = new ArrayList<>();
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CreditOffer creditOffer = (CreditOffer) o;
+        return Objects.equals(uuid, creditOffer.uuid);
     }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
+    }
 }

@@ -1,50 +1,66 @@
 package com.example.creditka.entity;
 
 import lombok.*;
-import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 /**
  * Сущность банка
- * Имеет 2 листа которые подключаються к Client and Credit
  */
-@Data
-@Entity
-@Table(name = "BANK")
+@Getter
+@Setter
+@AllArgsConstructor
 @NoArgsConstructor
-public class Bank{
+@Entity
+@Table(name="bank")
+public class Bank implements Serializable  {
+    private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "uuid")
-    private UUID id;
+    @GeneratedValue
+    @Column(name = "bank_uuid")
+    private UUID uuid;
 
-    @Column(length = 45,name = "nameBank",unique = true)
-    private String nameBank;
+    @Column(name = "bank_name")
+    @NotEmpty
+    private String name;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "bank",orphanRemoval = true)
+    @OneToMany(mappedBy="bank", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<Credit> credit;
+
+    @ManyToMany
+    @JoinTable(
+            name = "bank_client",
+            joinColumns = { @JoinColumn(name = "bank_uuid") },
+            inverseJoinColumns = { @JoinColumn(name = "client_uuid") }
+    )
     private Set<Client> clients;
 
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "bank", orphanRemoval = true)
-    private Set<Credit> credits;
-
-    public Bank(String nameBank) {
-        this.nameBank = nameBank;
+    public Bank(String name) {
+        this.name = name;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Bank bank = (Bank) o;
-
-        return Objects.equals(id, bank.id);
+        return Objects.equals(uuid, bank.uuid);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
+    }
+
+    public void addClient(Client client){
+        clients.add(client);
+    }
 
 }

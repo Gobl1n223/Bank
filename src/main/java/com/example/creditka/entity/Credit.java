@@ -1,48 +1,69 @@
 package com.example.creditka.entity;
 
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.*;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
+import javax.validation.constraints.*;
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Сущность кредита
- * Имеет внешний ключ Bank и лист CreditOffer
- */
 
+/**
+ * Сущность Кредита
+ */
 @Data
-@Entity
-@Table(name = "CREDIT")
 @NoArgsConstructor
-public class Credit  {
+@AllArgsConstructor
+@Entity
+@Table(name="credit")
+public class Credit implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "ID", updatable = false, nullable = false, columnDefinition = "uuid")
-    private UUID ID;
+    @GeneratedValue
+    @Column(name = "credit_uuid")
+    private UUID uuid;
 
-    @Column(name = "CREDIT_LIMIT")
-    private BigDecimal creditLimit;
+    @Column(name = "credit_name")
+    @NotEmpty
+    @Size(min = 5, max = 50)
+    private String name;
 
-    @Column(name = "PERCENT_RATE")
-    private BigDecimal percentRate;
+    @Column(name = "credit_limit")
+    @Min(value = 1)
+    @Max(value = Long.MAX_VALUE)
+    private long limit;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "BANK")
-    private Bank bank;
+    @Column(name = "interest_rate")
+    @DecimalMin("0")
+    @DecimalMax("0.9999")
+    private float interestRate;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "credit")
+    @OneToMany(mappedBy = "credit", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CreditOffer> creditOffers;
 
-    public Credit(Bank bank, BigDecimal creditLimit, BigDecimal percentRate) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bank_uuid")
+    private Bank bank;
+
+    public Credit(String name, long limit, float interestRate, Bank bank) {
+        this.name = name;
+        this.limit = limit;
+        this.interestRate = interestRate;
         this.bank = bank;
-        this.creditLimit = creditLimit;
-        this.percentRate = percentRate;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Credit credit = (Credit) o;
+        return Objects.equals(uuid, credit.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
     }
 }
